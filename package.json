@@ -1,0 +1,12 @@
+{
+  "name": "realTimeCommPackage",
+	"version": "1.0.0",
+	"description": "package for communication between clients",
+	"license": "ISC",
+	"repository": "none",
+	"dependencies":
+	{
+		"express": "latest",
+		"socket.io": "latest"
+	}
+}

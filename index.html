@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Real Time Communication - Client</title>
+    <style type="text/css">
+        body, input {
+            font-family: Tahoma;
+            font-size: 20px;
+        }
+
+        #div1 {
+            background-color: #00cccc;
+            margin: 10px;
+            padding: 10px;
+            height: 30px;
+        }
+
+        #div2 {
+            background-color: #ccffff;
+            margin: 10px;
+            padding: 10px;
+            height: 100px;
+            overflow: auto;
+        }
+
+        #div3 {
+            background-color: #99ffcc;
+            margin: 10px;
+            padding: 10px;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Real Time Communication - Client</h1>
+
+    <div id="div1">
+        Username: <input type="text" id="txtusername" value="anonymous" autofocus="autofocus">
+    </div>
+
+    <div id="div2">
+    </div>
+
+    <div id="div3">
+        <form id="form1">
+            Message: <input type="text" id="txtmessage">
+            <input type="submit" value="Send" disabled="disabled" id="btnsubmit">
+        </form>
+    </div>
+
+    <!--<script src="/node_modules/socket.io-client/socket.io.js"></script>-->
+    <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script>
+			var server = io.connect("ws://localhost:7049");
+
+			server.on("connect", fun1);
+			function fun1()
+			{
+				document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
+				document.getElementById("btnsubmit").removeAttribute("disabled");
+			}
+
+			document.getElementById("form1").addEventListener("submit", fun2);
+			function fun2(event)
+			{
+				var s = document.getElementById("txtusername").value + ": " + document.getElementById("txtmessage").value;
+				server.emit("clientMessage", s);
+				event.preventDefault();
+			}
+
+			server.on("serverMessage", fun3);
+			function fun3(data)
+			{
+				document.getElementById("div2").innerHTML += data + "<br>" ;
+				document.getElementById("div2").scrollTo(0, document.getElementById("div2").scrollHeight);
+			}
+
+    </script>
+
+</body>
+</html>
