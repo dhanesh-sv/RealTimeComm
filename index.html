@@ -36,9 +36,17 @@
     <h1>Real Time Communication - Client</h1>
 
     <div id="div1">
-        Username: <input type="text" id="txtusername" value="anonymous" autofocus="autofocus">
+        Userid: <input type="text" id="txtuserid" value="" autofocus="autofocus">
+        Username: <input type="text" id="txtusername" value="" autofocus="autofocus">
+        <input type="submit" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
     </div>
-
+    <div id="usersList">
+        <table id="userTable" border='1'>
+            <tr>
+                <th>Users</th>
+            </tr>
+        </table>
+    </div>
     <div id="div2">
     </div>
 
@@ -50,32 +58,51 @@
     </div>
 
     <!--<script src="/node_modules/socket.io-client/socket.io.js"></script>-->
+
     <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
-			var server = io.connect("ws://localhost:7049");
 
-			server.on("connect", fun1);
-			function fun1()
-			{
-				document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
-				document.getElementById("btnsubmit").removeAttribute("disabled");
-			}
 
-			document.getElementById("form1").addEventListener("submit", fun2);
-			function fun2(event)
-			{
-				var s = document.getElementById("txtusername").value + ": " + document.getElementById("txtmessage").value;
-				server.emit("clientMessage", s);
-				event.preventDefault();
-			}
+        function joinComm(userName, userId) {
 
-			server.on("serverMessage", fun3);
-			function fun3(data)
-			{
-				document.getElementById("div2").innerHTML += data + "<br>" ;
-				document.getElementById("div2").scrollTo(0, document.getElementById("div2").scrollHeight);
-			}
+            var server = io.connect("ws://localhost:7049");
+            server.on("connect", fun1);
 
+            function fun1() {
+                console.log("check");
+                document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
+                document.getElementById("btnsubmit").removeAttribute("disabled");
+                var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "" }
+                server.emit("addUser", userData);
+            }
+
+           
+
+            server.on("receiveUsersList", updateUsersList);
+            function updateUsersList(usersList) {
+                var trHTML = '';
+
+                $.each(usersList, function (i, item) {
+                    trHTML += '<tr><td>' + usersList[i].userName + '</td></tr>';
+                });
+
+                $('#userTable').append(trHTML);
+            };
+
+            document.getElementById("form1").addEventListener("submit", fun2);
+            function fun2(event) {
+                var s = document.getElementById("txtusername").value + ": " + document.getElementById("txtmessage").value;
+                server.emit("clientMessage", s);
+                event.preventDefault();
+            }
+
+            server.on("serverMessage", fun3);
+            function fun3(data) {
+                document.getElementById("div2").innerHTML += data + "<br>";
+                document.getElementById("div2").scrollTop(0, document.getElementById("div2").scrollHeight);
+            }
+        };
     </script>
 
 </body>

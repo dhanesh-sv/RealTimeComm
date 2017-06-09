@@ -29,10 +29,27 @@ function render1(request, response) {
     response.sendFile(__dirname + "/index.html");
 };
 
+var usersList = [];
+var createdRooms = [];
 
 io.on("connect", clientConnected);
 function clientConnected(client) {
     console.log("Client Connected");
+
+    client.on("addUser", addUser);
+    function addUser(userData) {
+
+        userData.socketId = client.id;
+        usersList.push(userData);
+
+
+
+        console.log(userData.userName);
+        console.log(userData.userId);
+        console.log(userData.socketId);
+
+        io.sockets.emit("receiveUsersList", usersList);
+    };
 
     client.on("clientMessage", clientMessage);
     function clientMessage(data) {
@@ -42,6 +59,15 @@ function clientConnected(client) {
 
     client.on("disconnect", clientDisconnected);
     function clientDisconnected(data) {
+        delete usersList[usersList.indexOf()];
         console.log("client disconnected")
     };
 };
+//Comments
+
+//var emp = [
+//            { id: 101, firstname: 'A1' },
+//            { id: 101, firstname: 'A2' },
+//            { id: 103, firstname: 'A3' },
+//            { id: 104, firstname: 'A4' }
+//];
