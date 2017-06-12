@@ -36,38 +36,45 @@ io.on("connect", clientConnected);
 function clientConnected(client) {
     console.log("Client Connected");
 
+    //client joining methods
     client.on("addUser", addUser);
     function addUser(userData) {
 
         userData.socketId = client.id;
-        usersList.push(userData);
+        // usersList[client.id] = userData;
+        usersList.push({
+            key: client.id,
+            value: userData
+        });
+        // usersList.push(userData);
 
 
 
         console.log(userData.userName);
         console.log(userData.userId);
         console.log(userData.socketId);
-
+        console.log(usersList);
         io.sockets.emit("receiveUsersList", usersList);
+
     };
 
+    //***start****//message section//***start****//
     client.on("clientMessage", clientMessage);
     function clientMessage(data) {
         console.log(data);
         io.sockets.emit("serverMessage", data);
     };
+    //***end****//message section//***end****//
 
+
+    //client disconnect methods
     client.on("disconnect", clientDisconnected);
     function clientDisconnected(data) {
-        delete usersList[usersList.indexOf()];
+        usersList = usersList.filter(function (i) {
+            return i.key !== client.id;
+        });
         console.log("client disconnected")
+        console.log(usersList);
+        io.sockets.emit("receiveUsersList", usersList);
     };
 };
-//Comments
-
-//var emp = [
-//            { id: 101, firstname: 'A1' },
-//            { id: 101, firstname: 'A2' },
-//            { id: 103, firstname: 'A3' },
-//            { id: 104, firstname: 'A4' }
-//];

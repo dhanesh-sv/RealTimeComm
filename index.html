@@ -50,6 +50,36 @@
     <div id="div2">
     </div>
 
+
+
+    <!-- userlist bind -->
+    <div class="span3">
+        <!-- In Call Actions -->
+        <div class="well actions">
+            <div class="status" data-bind="text: CallStatus"></div>
+            <button class="btn btn-danger hangup">Hang Up</button>
+        </div>
+        <!-- User List -->
+        <div class="well user-list">
+            <ul class="nav nav-list">
+                <li class="nav-header">Online Users <small data-bind="text: Users().length"></small></li>
+                <!-- ko foreach: Users -->
+                <li class="user" data-bind="attr: { 'data-cid': ConnectionId, 'title': Username }">
+                    <a href="#">
+                        <!-- only using an a here for bootstrap styling -->
+                        <div class="username" data-bind="text: Username"></div>
+                        <div class="helper" data-bind="css: $parent.getUserStatus($data)"></div>
+                    </a>
+                </li>
+                <!-- /ko -->
+            </ul>
+        </div>
+    </div>
+    <!-- userlist bind  -->
+
+
+
+
     <div id="div3">
         <form id="form1">
             Message: <input type="text" id="txtmessage">
@@ -58,9 +88,9 @@
     </div>
 
     <!--<script src="/node_modules/socket.io-client/socket.io.js"></script>-->
-
-    <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
+   
     <script>
 
 
@@ -77,14 +107,15 @@
                 server.emit("addUser", userData);
             }
 
-           
+
 
             server.on("receiveUsersList", updateUsersList);
             function updateUsersList(usersList) {
+                console.log("check2");
                 var trHTML = '';
-
+                $('#userTable').empty();
                 $.each(usersList, function (i, item) {
-                    trHTML += '<tr><td>' + usersList[i].userName + '</td></tr>';
+                    trHTML += '<tr><td>' + item.value.userName + '</td></tr>';
                 });
 
                 $('#userTable').append(trHTML);
@@ -101,6 +132,11 @@
             function fun3(data) {
                 document.getElementById("div2").innerHTML += data + "<br>";
                 document.getElementById("div2").scrollTop(0, document.getElementById("div2").scrollHeight);
+            }
+
+            //initiate a call by client
+            function initiateCall() {
+                server.emit("initiateCall", toClientId);
             }
         };
     </script>
