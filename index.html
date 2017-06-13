@@ -2,6 +2,10 @@
 <html>
 <head>
     <title>Real Time Communication - Client</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="Content/usersList.css" rel="stylesheet" />
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
     <style type="text/css">
         body, input {
             font-family: Tahoma;
@@ -12,7 +16,7 @@
             background-color: #00cccc;
             margin: 10px;
             padding: 10px;
-            height: 30px;
+            height: 50px;
         }
 
         #div2 {
@@ -38,9 +42,9 @@
     <div id="div1">
         Userid: <input type="text" id="txtuserid" value="" autofocus="autofocus">
         Username: <input type="text" id="txtusername" value="" autofocus="autofocus">
-        <input type="submit" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
+        <input type="submit" style="width:80px;height:32px;" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
     </div>
-    <div id="usersList">
+    <!--<div id="usersList">
         <table id="userTable" border='1'>
             <tr>
                 <th>Users</th>
@@ -48,97 +52,148 @@
         </table>
     </div>
     <div id="div2">
+    </div>-->
+
+
+
+    <div class="container" style="float:left">
+        <div class="row">
+            <div class="col-sm-3 col-md-3">
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                    <span class="glyphicon glyphicon-folder-close">
+                                    </span>Online Users
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <ul id="userliList" class="list-group">
+                                <!--<li class="list-group-item"><span class="glyphicon glyphicon-pencil text-primary"></span></li>-->
+
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
     </div>
 
 
 
-    <!-- userlist bind -->
-    <div class="span3">
-        <!-- In Call Actions -->
-        <div class="well actions">
-            <div class="status" data-bind="text: CallStatus"></div>
-            <button class="btn btn-danger hangup">Hang Up</button>
-        </div>
-        <!-- User List -->
-        <div class="well user-list">
-            <ul class="nav nav-list">
-                <li class="nav-header">Online Users <small data-bind="text: Users().length"></small></li>
-                <!-- ko foreach: Users -->
-                <li class="user" data-bind="attr: { 'data-cid': ConnectionId, 'title': Username }">
-                    <a href="#">
-                        <!-- only using an a here for bootstrap styling -->
-                        <div class="username" data-bind="text: Username"></div>
-                        <div class="helper" data-bind="css: $parent.getUserStatus($data)"></div>
-                    </a>
-                </li>
-                <!-- /ko -->
-            </ul>
-        </div>
-    </div>
-    <!-- userlist bind  -->
 
-
-
-
-    <div id="div3">
+    <!--<div id="div3" >
         <form id="form1">
             Message: <input type="text" id="txtmessage">
             <input type="submit" value="Send" disabled="disabled" id="btnsubmit">
         </form>
-    </div>
-
+    </div>-->
     <!--<script src="/node_modules/socket.io-client/socket.io.js"></script>-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
     <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
-   
+
     <script>
 
+        //var server = io.connect("ws://localhost:7049");
+        var server = io.connect("ws://10.10.10.110:7049");
+        server.on("connect", connectToServer);
+
+        function connectToServer() {
+            console.log("connected to Server!");
+            //document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
+            //document.getElementById("btnsubmit").removeAttribute("disabled");
+            //   var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "", isbusy: 0 }
+            // server.emit("addUser", userData);
+        }
 
         function joinComm(userName, userId) {
+            // debugger;
+            //var server = io.connect("ws://localhost:7049");
+            // server.on("connect", fun1);
 
-            var server = io.connect("ws://localhost:7049");
-            server.on("connect", fun1);
+            console.log("check");
+            //document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
+            //document.getElementById("btnsubmit").removeAttribute("disabled");
+            var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "", isbusy: 0 }
+            server.emit("addUser", userData);
 
-            function fun1() {
-                console.log("check");
-                document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
-                document.getElementById("btnsubmit").removeAttribute("disabled");
-                var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "" }
-                server.emit("addUser", userData);
-            }
-
-
-
-            server.on("receiveUsersList", updateUsersList);
-            function updateUsersList(usersList) {
-                console.log("check2");
-                var trHTML = '';
-                $('#userTable').empty();
-                $.each(usersList, function (i, item) {
-                    trHTML += '<tr><td>' + item.value.userName + '</td></tr>';
-                });
-
-                $('#userTable').append(trHTML);
-            };
-
-            document.getElementById("form1").addEventListener("submit", fun2);
-            function fun2(event) {
-                var s = document.getElementById("txtusername").value + ": " + document.getElementById("txtmessage").value;
-                server.emit("clientMessage", s);
-                event.preventDefault();
-            }
-
-            server.on("serverMessage", fun3);
-            function fun3(data) {
-                document.getElementById("div2").innerHTML += data + "<br>";
-                document.getElementById("div2").scrollTop(0, document.getElementById("div2").scrollHeight);
-            }
-
-            //initiate a call by client
-            function initiateCall() {
-                server.emit("initiateCall", toClientId);
-            }
         };
+
+        //getUsersList
+        server.on("receiveUsersList", updateUsersList);
+        function updateUsersList(usersList) {
+            console.log("check2");
+            $('#userliList').empty();
+            var myli = '';
+            $.each(usersList, function (i, item) {
+                var userBusyStatus;
+                var disabledStaus;
+                if (item.value.isbusy == 0) {
+                    userBusyStatus = "success";
+                    disabledStaus = " "
+                } else {
+                    userBusyStatus = "danger";
+                    disabledStaus = "disabled='disabled'"
+                }
+                myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "' " + disabledStaus + "  onclick='initiateCallAction(this.id)'></span></li>";
+            });
+            $('#userliList').append(myli);
+
+
+        };
+
+        //initiate a call by client
+        function initiateCallAction(toClientId) {
+            // debugger;
+            server.emit("initiateCallAction", toClientId);
+        };
+
+
+        //response from receiver
+        server.on("responseFromReceiver", responseFromReceiver);
+        function responseFromReceiver(responseCode, responseData) {
+            // debugger;
+            if (responseCode == 1) {
+                alert("You cannot call yourself");
+            };
+            if (responseCode == 3) {
+                alert("User rejected uour request");
+            };
+            if (responseCode == 2) {
+                // alert("User rejected uour request");
+            };
+        };
+
+
+        //ask the receiver to accept the call
+        server.on("requestingReceiverForCall", requestingReceiverForCall);
+        function requestingReceiverForCall(callerId,callerName) {
+            var b = confirm(callerName + "calling");
+            console.log(b);
+        };
+
+        //document.getElementById("form1").addEventListener("submit", fun2);
+        //function fun2(event) {
+        //    var s = document.getElementById("txtusername").value + ": " + document.getElementById("txtmessage").value;
+        //    server.emit("clientMessage", s);
+        //    event.preventDefault();
+        //}
+
+        //server.on("serverMessage", fun3);
+        //function fun3(data) {
+        //    document.getElementById("div2").innerHTML += data + "<br>";
+        //    document.getElementById("div2").scrollTop(0, document.getElementById("div2").scrollHeight);
+        //}
+
+
+        //};
+
+
+
     </script>
 
 </body>
