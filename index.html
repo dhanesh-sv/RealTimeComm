@@ -34,6 +34,8 @@
             height: 30px;
         }
     </style>
+    <link href="Content/chatWindow.css" rel="stylesheet" />
+
 </head>
 <body>
 
@@ -43,16 +45,9 @@
         Userid: <input type="text" id="txtuserid" value="" autofocus="autofocus">
         Username: <input type="text" id="txtusername" value="" autofocus="autofocus">
         <input type="submit" style="width:80px;height:32px;" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
+        <!--<input type="submit" style="width:280px;height:32px;" value="Check Connection bw Clients" id="btnjoin" onclick="sendMessage()">-->
     </div>
-    <!--<div id="usersList">
-        <table id="userTable" border='1'>
-            <tr>
-                <th>Users</th>
-            </tr>
-        </table>
-    </div>
-    <div id="div2">
-    </div>-->
+
 
 
 
@@ -70,10 +65,7 @@
                             </h4>
                         </div>
                         <div id="collapseOne" class="panel-collapse collapse in">
-                            <ul id="userliList" class="list-group">
-                                <!--<li class="list-group-item"><span class="glyphicon glyphicon-pencil text-primary"></span></li>-->
-
-                            </ul>
+                            <ul id="userliList" class="list-group"></ul>
                         </div>
                     </div>
 
@@ -83,9 +75,34 @@
         </div>
     </div>
 
-
-
-
+    <!--Chat Window Start-->
+    <div class="chat_window" style="float:right" id="div_chatWindow">
+        <div class="top_menu">
+            <!--<div class="buttons">
+                <div class="button close"></div>
+                <div class="button minimize"></div>
+                <div class="button maximize"></div>
+            </div>-->
+            <div class="title">Chat Window<span class="glyphicon glyphicon-remove-sign" style="float:right"></span><span class="glyphicon glyphicon-facetime-video" style="float:right"></span></div>
+        </div>
+        <ul class="messages"></ul>
+        <div class="bottom_wrapper clearfix">
+            <div class="message_input_wrapper"><input class="message_input" style="font-family:Tahoma;font-size:15px;" placeholder="Type your message here..." /></div>
+            <div class="send_message">
+                <div class="icon"></div>
+                <div class="text">Send</div>
+            </div>
+        </div>
+    </div>
+    <div class="message_template">
+        <li class="message">
+            <div class="avatar"></div>
+            <div class="text_wrapper">
+                <div class="text"></div>
+            </div>
+        </li>
+    </div>
+    <!--Chat Window End-->
     <!--<div id="div3" >
         <form id="form1">
             Message: <input type="text" id="txtmessage">
@@ -97,7 +114,8 @@
     <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
 
     <script>
-
+        var chatWindowDisplay = document.getElementById('div_chatWindow');
+        chatWindowDisplay.style.display = 'none';
         //var server = io.connect("ws://localhost:7049");
         var server = io.connect("ws://10.10.10.110:7049");
         server.on("connect", connectToServer);
@@ -164,17 +182,35 @@
                 alert("User rejected uour request");
             };
             if (responseCode == 2) {
-                // alert("User rejected uour request");
+                alert("User accepted your request");
+                chatWindowDisplay.style.display = 'block';
             };
         };
 
 
         //ask the receiver to accept the call
         server.on("requestingReceiverForCall", requestingReceiverForCall);
-        function requestingReceiverForCall(callerId,callerName) {
-            var b = confirm(callerName + "calling");
-            console.log(b);
+        function requestingReceiverForCall(callerId, callerName, receiverId, roomId) {
+            var receiverConfirmation = confirm("User " + callerName + " requsting for a call,Do you want to accept?");
+            //debugger;
+            server.emit("callRequestResponse", receiverConfirmation, callerId, receiverId, roomId);
+            if (receiverConfirmation == true) {
+                chatWindowDisplay.style.display = 'block';
+            }
         };
+
+
+
+        //message sending bw clients
+        function sendMessage() {
+            debugger;
+            server.emit("checkConnectionBwClients", "Hi");
+        };
+
+        //server.on("receiveMessage", receiveMessage);
+        //function receiveMessage(msg) {
+        //    alert("msg");
+        //};
 
         //document.getElementById("form1").addEventListener("submit", fun2);
         //function fun2(event) {
@@ -195,6 +231,102 @@
 
 
     </script>
+    <!--<script src="Scripts/chatWindow.js"></script>-->
 
+    <script>
+
+        var Message;
+        Message = function (arg) {
+            this.text = arg.text, this.message_side = arg.message_side;
+            this.draw = function (_this) {
+                return function () {
+                    var $message;
+                    $message = $($('.message_template').clone().html());
+                    $message.addClass(_this.message_side).find('.text').html(_this.text);
+                    $('.messages').append($message);
+                    return setTimeout(function () {
+                        return $message.addClass('appeared');
+                    }, 0);
+                };
+            }(this);
+            return this;
+        };
+
+
+
+        //$(function () {
+        var getMessageText, message_side, sendMessage;
+        message_side = 'right';
+        getMessageText = function () {
+            var $message_input;
+            $message_input = $('.message_input');
+            return $message_input.val();
+        };
+
+
+        sendMessage = function (text) {
+            // debugger;
+            var $messages, message;
+            if (text.trim() === '') {
+                return;
+            }
+            $('.message_input').val('');
+            $messages = $('.messages');
+            message_side = 'right';
+            message = new Message({
+                text: text,
+                message_side: message_side
+            });
+
+            // function sendMessage(text) {
+            server.emit("clientSentMessage", text);
+            //  };
+            message.draw();
+            return $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
+
+
+        };
+
+        receivedMessage = function (text) {
+            //  debugger;
+            var $messages, message;
+            if (text.trim() === '') {
+                return;
+            }
+            $('.message_input').val('');
+            $messages = $('.messages');
+            message_side = 'left';
+            message = new Message({
+                text: text,
+                message_side: message_side
+            });
+            message.draw();
+            return $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
+        };
+
+
+
+
+        $('.send_message').click(function (e) {
+            return sendMessage(getMessageText());
+        });
+
+        $('.message_input').keyup(function (e) {
+            if (e.which === 13) {
+                return sendMessage(getMessageText());
+            }
+        });
+
+
+
+        // });
+
+        server.on("receiveMessage", receiveMessage);
+        function receiveMessage(receivedMessageFromServer) {
+            // alert(receivedMessageFromServer);
+
+            receivedMessage(receivedMessageFromServer);
+        };
+    </script>
 </body>
 </html>

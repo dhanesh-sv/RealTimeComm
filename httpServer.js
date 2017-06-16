@@ -30,7 +30,7 @@ function render1(request, response) {
 };
 
 var usersList = [];
-var createdRooms = [];
+var chatRooms = [];
 
 io.on("connect", clientConnected);
 function clientConnected(client) {
@@ -79,13 +79,7 @@ function clientConnected(client) {
     //client joining methods
 
 
-    //***start****//message section//***start****//
-    client.on("clientMessage", clientMessage);
-    function clientMessage(data) {
-        console.log(data);
-        io.sockets.emit("serverMessage", data);
-    };
-    //***end****//message section//***end****//
+
 
 
     //client disconnect methods
@@ -98,6 +92,8 @@ function clientConnected(client) {
         console.log(usersList);
         io.sockets.emit("receiveUsersList", usersList);
     };
+    //client disconnect methods
+
 
     //***start****//initiate call//***start****//
     //response codes
@@ -111,32 +107,108 @@ function clientConnected(client) {
         if (client.id == toClientId) {
             responseCode = 1;
             client.emit('responseFromReceiver', responseCode, responseData);
+            return;
         };
-
-
-      //var res=  usersList.map(n => {
-      //      if (client.id === n.key) {
-      //          console.log(n.value.userName);
-      //          return n.value.userName;
-      //      }
-      //  });
-
-
 
         var getCurrentClientObj = usersList.filter(function (i) {
             return i.key == client.id;
         });
 
 
-        console.log(getCurrentClientObj[0].key);
-        console.log(getCurrentClientObj[0].value.userId);
-        client.broadcast.to(toClientId).emit('requestingReceiverForCall', client.id, getCurrentClientObj[0].value.userName)
-       // console.log(client.id);
-        //var ids=client.id;
-        //console.log(usersList[ids]);
+        // console.log(getCurrentClientObj[0].key);
+        // console.log(getCurrentClientObj[0].value.userId);
+        var roomId = "caller-" + client.id + "Receiver-" + toClientId;
+
+        client.join(roomId);
+        usersList.map(n=> {
+            if (client.id === n.key) {
+                n.value.roomId = roomId;
+                n.value.isbusy = 1;
+            }
+        });
+
+        console.log(usersList);
+
+        client.broadcast.to(toClientId).emit('requestingReceiverForCall', client.id, getCurrentClientObj[0].value.userName, toClientId, roomId);
+        io.sockets.emit("receiveUsersList", usersList);
+
         // client.broadcast.to(toClientId).emit('requestingReceiverForCall', client.id,);
         // io.sockets.emit("responseFromReceiver", responseCode, responseData);
     };
+
+    client.on("callRequestResponse", callRequestResponse);
+    function callRequestResponse(receiverConfirmation, callerId, ReceiverId, roomId) {
+        var responseCode, responseData;
+        if (receiverConfirmation == false) {
+            responseCode = 3;
+            usersList.map(n=> {
+                if (callerId === n.key) {
+                    n.value.roomId = '';
+                    n.value.isbusy = 0;
+                }
+            });
+            client.broadcast.to(callerId).emit('responseFromReceiver', responseCode, responseData);
+            io.sockets.emit("receiveUsersList", usersList);
+            // client.emit('responseFromReceiver', responseCode, responseData);
+        } else {
+            responseCode = 2;
+            client.join(roomId);
+
+            chatRooms.push({
+                key: roomId,
+                value: { callerId: callerId, ReceiverId: ReceiverId, MRN_No: '' }
+            });
+
+            usersList.map(n=> {
+                if (client.id === n.key) {
+                    n.value.roomId = roomId;
+                    n.value.isbusy = 1;
+                }
+            });
+            console.log(usersList);
+            client.broadcast.to(callerId).emit('responseFromReceiver', responseCode, responseData);
+            io.sockets.emit("receiveUsersList", usersList);
+        }
+
+    }
+
     //***end****//initiate call//***end****//
 
+
+    //***start****//message section//***start****//
+    client.on("clientMessage", clientMessage);
+    function clientMessage(data) {
+        console.log(data);
+        io.sockets.emit("serverMessage", data);
+    };
+
+    client.on("checkConnectionBwClients", checkConnectionBwClients);
+    function checkConnectionBwClients(message) {
+        var getroomId;
+            usersList.map(n=> {
+            if (client.id == n.key) {
+                console.log("method"+n.value.roomId);
+                getroomId= n.value.roomId;
+            }
+        });
+        console.log("getroomid "+getroomId);
+
+        client.broadcast.to(getroomId).emit("receiveMessage", message);
+    };
+
+
+    client.on("clientSentMessage", clientSentMessage);
+    function clientSentMessage(message) {
+        var getroomId;
+        usersList.map(n=> {
+            if (client.id == n.key) {
+                console.log("method" + n.value.roomId);
+                getroomId = n.value.roomId;
+            }
+        });
+        console.log("getroomid " + getroomId);
+
+        client.broadcast.to(getroomId).emit("receiveMessage", message);
+    };
+    //***end****//message section//***end****//
 };
