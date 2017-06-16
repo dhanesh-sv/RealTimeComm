@@ -33,6 +33,9 @@
             padding: 10px;
             height: 30px;
         }
+        /*.myUserClass{
+            glyphicon glyphicon-user text-success;
+        }*/
     </style>
     <link href="Content/chatWindow.css" rel="stylesheet" />
 
@@ -46,69 +49,121 @@
         Username: <input type="text" id="txtusername" value="" autofocus="autofocus">
         <input type="submit" style="width:80px;height:32px;" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
         <!--<input type="submit" style="width:280px;height:32px;" value="Check Connection bw Clients" id="btnjoin" onclick="sendMessage()">-->
+        <div id="currentUser" style="float:right"></div>
     </div>
 
 
 
+    <div>
+        <div class="container" style="float:left">
+            <div class="row">
+                <div class="col-sm-3 col-md-3">
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <span class="glyphicon glyphicon-folder-close">
+                                        </span>Online Users
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in">
+                                <ul id="userliList" class="list-group"></ul>
+                            </div>
+                        </div>
 
-    <div class="container" style="float:left">
-        <div class="row">
-            <div class="col-sm-3 col-md-3">
-                <div class="panel-group" id="accordion">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                    <span class="glyphicon glyphicon-folder-close">
-                                    </span>Online Users
-                                </a>
-                            </h4>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!--patientdataform-->
+        <div class="container-fluid" style="float:right;visibility:collapse">
+            <section class="container">
+                <div class="container-page">
+                    <div class="col-md-6">
+                        <h3 class="dark-grey">Patient Information</h3>
+
+                        <div class="form-group col-lg-12">
+                            <label>Patient Name</label>
+                            <input type="" name="" class="form-control" id="" value="">
                         </div>
-                        <div id="collapseOne" class="panel-collapse collapse in">
-                            <ul id="userliList" class="list-group"></ul>
+
+                        <div class="form-group col-lg-6">
+                            <label>Chief Complaints</label>
+                            <input name="" class="form-control" id="" value="">
                         </div>
+
+                        <div class="form-group col-lg-6">
+                            <label>Provisional Diagnosis</label>
+                            <input name="" class="form-control" id="" value="">
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <label>Investigations</label>
+                            <input type="" name="" class="form-control" id="" value="">
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <label>Drugs</label>
+                            <input type="" name="" class="form-control" id="" value="">
+                        </div>
+
+
+
                     </div>
 
+
                 </div>
+            </section>
+        </div>
+        <!--patientdataform-->
+        <!--Chat Window Start-->
+        <div class="chat_window" style="float:right" id="div_chatWindow">
+            <div class="top_menu">
+                <!--<div class="buttons">
+                    <div class="button close"></div>
+                    <div class="button minimize"></div>
+                    <div class="button maximize"></div>
+                </div>-->
+                <div class="title">Chat Window<span class="glyphicon glyphicon-remove-sign" style="float:right"></span></div>
             </div>
+            <ul class="messages"></ul>
+            <div class="bottom_wrapper clearfix">
+                <div class="message_input_wrapper"><input class="message_input" style="font-family:Tahoma;font-size:13px;" placeholder="Type your message here..." /></div>
+                <!--<div class="send_message">
+                    <div class="icon"></div>
+                    <div class="text">Send</div>
+                </div>-->
+                <div class="glyphicon glyphicon-send text-success">
+                </div><div><span class="glyphicon glyphicon-facetime-video text-success" style="float:right"></span></div>
+               
+            </div>
+        </div>
+        <div class="message_template">
+            <li class="message">
+                <div class="avatar"></div>
+                <div class="text_wrapper">
+                    <div class="text"></div>
+                </div>
+            </li>
+        </div>
 
-        </div>
+
+        <!--Chat Window End-->
+        <!--<div id="div3" >
+            <form id="form1">
+                Message: <input type="text" id="txtmessage">
+                <input type="submit" value="Send" disabled="disabled" id="btnsubmit">
+            </form>
+        </div>-->
+
     </div>
 
-    <!--Chat Window Start-->
-    <div class="chat_window" style="float:right" id="div_chatWindow">
-        <div class="top_menu">
-            <!--<div class="buttons">
-                <div class="button close"></div>
-                <div class="button minimize"></div>
-                <div class="button maximize"></div>
-            </div>-->
-            <div class="title">Chat Window<span class="glyphicon glyphicon-remove-sign" style="float:right"></span><span class="glyphicon glyphicon-facetime-video" style="float:right"></span></div>
-        </div>
-        <ul class="messages"></ul>
-        <div class="bottom_wrapper clearfix">
-            <div class="message_input_wrapper"><input class="message_input" style="font-family:Tahoma;font-size:15px;" placeholder="Type your message here..." /></div>
-            <div class="send_message">
-                <div class="icon"></div>
-                <div class="text">Send</div>
-            </div>
-        </div>
-    </div>
-    <div class="message_template">
-        <li class="message">
-            <div class="avatar"></div>
-            <div class="text_wrapper">
-                <div class="text"></div>
-            </div>
-        </li>
-    </div>
-    <!--Chat Window End-->
-    <!--<div id="div3" >
-        <form id="form1">
-            Message: <input type="text" id="txtmessage">
-            <input type="submit" value="Send" disabled="disabled" id="btnsubmit">
-        </form>
-    </div>-->
+
     <!--<script src="/node_modules/socket.io-client/socket.io.js"></script>-->
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
     <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
@@ -148,6 +203,7 @@
             $('#userliList').empty();
             var myli = '';
             $.each(usersList, function (i, item) {
+               // debugger;
                 var userBusyStatus;
                 var disabledStaus;
                 if (item.value.isbusy == 0) {
@@ -157,7 +213,14 @@
                     userBusyStatus = "danger";
                     disabledStaus = "disabled='disabled'"
                 }
-                myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "' " + disabledStaus + "  onclick='initiateCallAction(this.id)'></span></li>";
+
+                if (item.value.userId != txtuserid.value) {
+                    myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "' " + disabledStaus + "  onclick='initiateCallAction(this.id)'></span></li>";
+                } else {
+                    var a = "<span class='glyphicon glyphicon-user text-" + userBusyStatus + "'>" + item.value.userName + "</span>";
+                    document.getElementById('currentUser').innerHTML = a;
+                };
+
             });
             $('#userliList').append(myli);
 
@@ -324,7 +387,6 @@
         server.on("receiveMessage", receiveMessage);
         function receiveMessage(receivedMessageFromServer) {
             // alert(receivedMessageFromServer);
-
             receivedMessage(receivedMessageFromServer);
         };
     </script>

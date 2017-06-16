@@ -47,7 +47,7 @@
 .top_menu .title {
   text-align: center;
   color: #bcbdc0;
-  font-size: 20px;
+  font-size: 15px;
 }
 
 .messages {
@@ -140,15 +140,15 @@
   width: 100%;
   background-color: #fff;
   padding: 20px 20px;
-  position: absolute;
+  /*position: absolute;*/
   bottom: 0;
 }
 .bottom_wrapper .message_input_wrapper {
   display: inline-block;
-  height: 50px;
+  height: 35px;
   border-radius: 25px;
   border: 1px solid #bcbdc0;
-  width: calc(100% - 160px);
+  width: calc(100% - 60px);
   position: relative;
   padding: 0 20px;
 }
