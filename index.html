@@ -81,7 +81,7 @@
 
 
         <!--patientdataform-->
-        <div class="container-fluid" style="float:right;visibility:collapse">
+        <div class="container-fluid" style="float:right;">
             <section class="container">
                 <div class="container-page">
                     <div class="col-md-6">
@@ -89,27 +89,27 @@
 
                         <div class="form-group col-lg-12">
                             <label>Patient Name</label>
-                            <input type="" name="" class="form-control" id="" value="">
+                            <input class="form-control" id="txtPatientName" value="">
                         </div>
 
                         <div class="form-group col-lg-6">
                             <label>Chief Complaints</label>
-                            <input name="" class="form-control" id="" value="">
+                            <input class="form-control" id="txtchiefComplaints" value="">
                         </div>
 
                         <div class="form-group col-lg-6">
                             <label>Provisional Diagnosis</label>
-                            <input name="" class="form-control" id="" value="">
+                            <input class="form-control" id="txtProvisionalDiagnosis" value="">
                         </div>
 
                         <div class="form-group col-lg-6">
                             <label>Investigations</label>
-                            <input type="" name="" class="form-control" id="" value="">
+                            <input class="form-control" id="txtInvestigations" value="">
                         </div>
 
                         <div class="form-group col-lg-6">
                             <label>Drugs</label>
-                            <input type="" name="" class="form-control" id="" value="">
+                            <input class="form-control" id="txtDrugs" value="">
                         </div>
 
 
@@ -122,25 +122,25 @@
         </div>
         <!--patientdataform-->
         <!--Chat Window Start-->
-        <div class="chat_window" style="float:right" id="div_chatWindow">
+        <div class="chat_window" style="float:right;" id="div_chatWindow">
             <div class="top_menu">
                 <!--<div class="buttons">
                     <div class="button close"></div>
                     <div class="button minimize"></div>
                     <div class="button maximize"></div>
                 </div>-->
-                <div class="title">Chat Window<span class="glyphicon glyphicon-remove-sign" style="float:right"></span></div>
+                <div class="title"><span title="Get Control" id="spanGetControl" class="glyphicon glyphicon-chevron-down text-success" style="float:left;cursor:pointer;" onclick='getControl()'></span><span title="Release Control" id="spanReleaseControl" class="glyphicon glyphicon-chevron-up text-success" style="float:left;cursor:pointer;" onclick='releaseControl()'></span>Chat Window<span class="glyphicon glyphicon-remove-sign text-danger" style="float:right;cursor:pointer;" onclick='endCall()'></span></div>
             </div>
-            <ul class="messages"></ul>
+            <ul class="messages" id="ulMessages"></ul>
             <div class="bottom_wrapper clearfix">
                 <div class="message_input_wrapper"><input class="message_input" style="font-family:Tahoma;font-size:13px;" placeholder="Type your message here..." /></div>
                 <!--<div class="send_message">
                     <div class="icon"></div>
                     <div class="text">Send</div>
                 </div>-->
-                <span class="glyphicon glyphicon-send text-success" style="top:-5px;"></span> <span class="glyphicon glyphicon-facetime-video text-success" style="top:-5px;"></span>
-                
-               
+                <span class="glyphicon glyphicon-send text-success" style="top:-5px;cursor:pointer;" id="spanMessageSend"></span> <span class="glyphicon glyphicon-facetime-video text-success" style="top:-5px;cursor:pointer;" id="spanConnectVideo"></span>
+
+
             </div>
         </div>
         <div class="message_template">
@@ -191,7 +191,7 @@
             console.log("check");
             //document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
             //document.getElementById("btnsubmit").removeAttribute("disabled");
-            var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "", isbusy: 0 }
+            var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "", isbusy: 0, inCall: 0 }
             server.emit("addUser", userData);
 
         };
@@ -203,7 +203,7 @@
             $('#userliList').empty();
             var myli = '';
             $.each(usersList, function (i, item) {
-               // debugger;
+                // debugger;
                 var userBusyStatus;
                 var disabledStaus;
                 if (item.value.isbusy == 0) {
@@ -213,6 +213,10 @@
                     userBusyStatus = "danger";
                     disabledStaus = "disabled='disabled'"
                 }
+
+                //if (item.value.inCall == 0 && item.value.userId==txtuserid.value) {
+                //    clearMessages();
+                //}
 
                 if (item.value.userId != txtuserid.value) {
                     myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "' " + disabledStaus + "  onclick='initiateCallAction(this.id)'></span></li>";
@@ -245,7 +249,8 @@
                 alert("User rejected uour request");
             };
             if (responseCode == 2) {
-                alert("User accepted your request");
+                // alert("User accepted your request");
+                debugger;
                 chatWindowDisplay.style.display = 'block';
             };
         };
@@ -270,6 +275,23 @@
             server.emit("checkConnectionBwClients", "Hi");
         };
 
+
+        //onClose Connection
+        function endCall() {
+            var endCallConfirmation = confirm("Do you really want to end call?");
+            if (endCallConfirmation == true) {
+                server.emit("endCall");
+                clearMessages();
+                chatWindowDisplay.style.display = 'none';
+            };
+        };
+
+        server.on("endCallResponse", onEndCallResponse);
+        function onEndCallResponse() {
+            debugger;
+            clearMessages();
+            chatWindowDisplay.style.display = 'none';
+        };
         //server.on("receiveMessage", receiveMessage);
         //function receiveMessage(msg) {
         //    alert("msg");
@@ -380,7 +402,9 @@
             }
         });
 
-
+        $('#spanMessageSend').click(function (e) {
+            return sendMessage(getMessageText());
+        });
 
         // });
 
@@ -389,6 +413,14 @@
             // alert(receivedMessageFromServer);
             receivedMessage(receivedMessageFromServer);
         };
+
+        var clearMessages = function () {
+            debugger;
+            document.getElementById('ulMessages').innerHTML = "";
+            // chatWindowDisplay.style.display = 'none';
+        };
+
+        //$('#spanGetControl').hover("Get Control")
     </script>
 </body>
 </html>

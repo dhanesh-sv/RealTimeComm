@@ -92,6 +92,40 @@ function clientConnected(client) {
         console.log(usersList);
         io.sockets.emit("receiveUsersList", usersList);
     };
+
+    //call end method
+    client.on("endCall", onCallEnded);
+    function onCallEnded() {
+        var getroomId;
+        var otherClient;
+        usersList.map(n=> {
+            if (client.id == n.key) {
+                getroomId = n.value.roomId;
+            }
+        });
+
+        usersList.map(n=> {
+            if (getroomId == n.value.roomId && client.id != n.key) {
+                otherClient = n.key;
+            }
+        });
+
+        usersList.map(n=> {
+            if (getroomId === n.value.roomId) {
+                n.value.roomId = '';
+                n.value.isbusy = 0;
+                n.value.inCall = 0;
+            }
+        });
+
+        chatRooms = chatRooms.filter(function (i) {
+            return i.key !== getroomId;
+        });
+        console.log(chatRooms);
+        console.log(otherClient);
+        client.broadcast.to(otherClient).emit('endCallResponse');
+        io.sockets.emit("receiveUsersList", usersList);
+    };
     //client disconnect methods
 
 
@@ -165,6 +199,13 @@ function clientConnected(client) {
                     n.value.isbusy = 1;
                 }
             });
+
+            usersList.map(n=> {
+                if (roomId === n.value.roomId) {
+                    n.value.inCall = 1;
+                }
+            });
+
             console.log(usersList);
             client.broadcast.to(callerId).emit('responseFromReceiver', responseCode, responseData);
             io.sockets.emit("receiveUsersList", usersList);
@@ -185,13 +226,13 @@ function clientConnected(client) {
     client.on("checkConnectionBwClients", checkConnectionBwClients);
     function checkConnectionBwClients(message) {
         var getroomId;
-            usersList.map(n=> {
+        usersList.map(n=> {
             if (client.id == n.key) {
-                console.log("method"+n.value.roomId);
-                getroomId= n.value.roomId;
+                console.log("method" + n.value.roomId);
+                getroomId = n.value.roomId;
             }
         });
-        console.log("getroomid "+getroomId);
+        console.log("getroomid " + getroomId);
 
         client.broadcast.to(getroomId).emit("receiveMessage", message);
     };
