@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Patient>
+  <MRN>0049</MRN>
+  <patientName>Dhanesh</patientName>
+  <chiefComplaints>None</chiefComplaints>
+  <provisionalDiagnosis>None</provisionalDiagnosis>
+  <investigations>None</investigations>
+  <drugs>None</drugs>
+</Patient>

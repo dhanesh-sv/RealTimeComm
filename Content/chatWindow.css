@@ -11,9 +11,9 @@
   height:450px;
   border-radius: 10px;
   background-color: #fff;
-  left: 85%;
+  /*left: 85%;*/
   top:50%;
-  transform: translateX(-50%) translateY(-50%);
+  /*transform: translateX(-50%) translateY(-50%);*/
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   background-color: #f8f8f8;
   overflow: hidden;

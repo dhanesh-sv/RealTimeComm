@@ -14,7 +14,7 @@
 
         #div1 {
             background-color: #00cccc;
-            margin: 10px;
+            margin: 10px 0px 10px 0px;
             padding: 10px;
             height: 50px;
         }
@@ -33,6 +33,16 @@
             padding: 10px;
             height: 30px;
         }
+
+        .disableform {
+            pointer-events: none;
+            opacity: 1.0;
+        }
+
+        .enableform {
+            pointer-events: auto;
+            opacity: 1.0;
+        }
         /*.myUserClass{
             glyphicon glyphicon-user text-success;
         }*/
@@ -41,23 +51,31 @@
 
 </head>
 <body>
-
-    <h1>Real Time Communication - Client</h1>
-
-    <div id="div1">
-        Userid: <input type="text" id="txtuserid" value="" autofocus="autofocus">
-        Username: <input type="text" id="txtusername" value="" autofocus="autofocus">
-        <input type="submit" style="width:80px;height:32px;" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
-        <!--<input type="submit" style="width:280px;height:32px;" value="Check Connection bw Clients" id="btnjoin" onclick="sendMessage()">-->
-        <div id="currentUser" style="float:right"></div>
-    </div>
+    <div class="container-fluid">
+        <h1>Real Time Communication - Client</h1>
 
 
 
-    <div>
-        <div class="container" style="float:left">
+        <div id="div1">
+            Userid: <input type="text" id="txtuserid" value="" autofocus="autofocus">
+            Username: <input type="text" id="txtusername" value="" autofocus="autofocus">
+            <input type="submit" style="width:80px;height:32px;" value="Join" id="btnjoin" onclick="joinComm(txtusername.value, txtuserid.value)">
+            <!--<input type="submit" style="width:280px;height:32px;" value="Check Connection bw Clients" id="btnjoin" onclick="sendMessage()">-->
+
+            <div id="currentUser" style="float:right;background-color:azure;"></div>
+        </div>
+
+
+
+        <div>
+
+
+
+
             <div class="row">
-                <div class="col-sm-3 col-md-3">
+
+
+                <div class="col-md-3 col-sm-3 col-xs-12">
                     <div class="panel-group" id="accordion">
                         <div class="panel panel-default">
                             <div class="panel-heading">
@@ -74,17 +92,14 @@
                         </div>
 
                     </div>
+
+
                 </div>
 
-            </div>
-        </div>
+                <div class="col-md-6 col-sm-6 col-xs-12" id="divPatientInformation">
 
 
-        <!--patientdataform-->
-        <div class="container-fluid" style="float:right;">
-            <section class="container">
-                <div class="container-page">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h3 class="dark-grey">Patient Information</h3>
 
                         <div class="form-group col-lg-12">
@@ -112,37 +127,54 @@
                             <input class="form-control" id="txtDrugs" value="">
                         </div>
 
-
+                        <div class="form-group col-lg-6  btn btn-info btn-block btn-huge" style="float:right;">
+                            <input type="button" class="form-control" id="txtUpdate" value="Update" onclick="onDataUpdate()">
+                        </div>
 
                     </div>
 
 
+
+
                 </div>
-            </section>
+
+                <div class="col-md-3 col-sm-3 col-xs-12">
+
+                    <div class="chat_window" id="div_chatWindow">
+                        <div class="top_menu">
+                            <!--<div class="buttons">
+                                <div class="button close"></div>
+                                <div class="button minimize"></div>
+                                <div class="button maximize"></div>
+                            </div>-->
+                            <div class="title"><span title="Get Control" id="spanGetControl" class="glyphicon glyphicon-chevron-down text-success" style="float:left;cursor:pointer;" onclick='getControl()'></span><span title="Release Control" id="spanReleaseControl" class="glyphicon glyphicon-chevron-up text-success" style="float:left;cursor:pointer;" onclick='releaseControl()'></span>Chat Window<span class="glyphicon glyphicon-remove-sign text-danger" style="float:right;cursor:pointer;" onclick='endCall()'></span></div>
+                        </div>
+                        <ul class="messages" id="ulMessages"></ul>
+                        <div class="bottom_wrapper clearfix">
+                            <div class="message_input_wrapper"><input class="message_input" style="font-family:Tahoma;font-size:13px;" placeholder="Type your message here..." /></div>
+                            <!--<div class="send_message">
+                                <div class="icon"></div>
+                                <div class="text">Send</div>
+                            </div>-->
+                            <span class="glyphicon glyphicon-send text-success" style="top:-5px;cursor:pointer;" id="spanMessageSend"></span> <span class="glyphicon glyphicon-facetime-video text-success" style="top:-5px;cursor:pointer;" id="spanConnectVideo"></span>
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
+
+
+
+
+
+        <!--patientdataform-->
         <!--patientdataform-->
         <!--Chat Window Start-->
-        <div class="chat_window" style="float:right;" id="div_chatWindow">
-            <div class="top_menu">
-                <!--<div class="buttons">
-                    <div class="button close"></div>
-                    <div class="button minimize"></div>
-                    <div class="button maximize"></div>
-                </div>-->
-                <div class="title"><span title="Get Control" id="spanGetControl" class="glyphicon glyphicon-chevron-down text-success" style="float:left;cursor:pointer;" onclick='getControl()'></span><span title="Release Control" id="spanReleaseControl" class="glyphicon glyphicon-chevron-up text-success" style="float:left;cursor:pointer;" onclick='releaseControl()'></span>Chat Window<span class="glyphicon glyphicon-remove-sign text-danger" style="float:right;cursor:pointer;" onclick='endCall()'></span></div>
-            </div>
-            <ul class="messages" id="ulMessages"></ul>
-            <div class="bottom_wrapper clearfix">
-                <div class="message_input_wrapper"><input class="message_input" style="font-family:Tahoma;font-size:13px;" placeholder="Type your message here..." /></div>
-                <!--<div class="send_message">
-                    <div class="icon"></div>
-                    <div class="text">Send</div>
-                </div>-->
-                <span class="glyphicon glyphicon-send text-success" style="top:-5px;cursor:pointer;" id="spanMessageSend"></span> <span class="glyphicon glyphicon-facetime-video text-success" style="top:-5px;cursor:pointer;" id="spanConnectVideo"></span>
 
-
-            </div>
-        </div>
         <div class="message_template">
             <li class="message">
                 <div class="avatar"></div>
@@ -162,12 +194,11 @@
         </div>-->
 
     </div>
+    </div>
 
 
-    <!--<script src="/node_modules/socket.io-client/socket.io.js"></script>-->
-    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
-    <script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
-
+    <!--<script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>-->
+    <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
     <script>
         var chatWindowDisplay = document.getElementById('div_chatWindow');
         chatWindowDisplay.style.display = 'none';
@@ -177,20 +208,12 @@
 
         function connectToServer() {
             console.log("connected to Server!");
-            //document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
-            //document.getElementById("btnsubmit").removeAttribute("disabled");
-            //   var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "", isbusy: 0 }
-            // server.emit("addUser", userData);
         }
 
         function joinComm(userName, userId) {
             // debugger;
             //var server = io.connect("ws://localhost:7049");
-            // server.on("connect", fun1);
-
             console.log("check");
-            //document.getElementById("div2").innerHTML += "<p>Connected to server</p>";
-            //document.getElementById("btnsubmit").removeAttribute("disabled");
             var userData = { userName: userName, userId: userId, orgId: 1, centerId: 1, socketId: "", roomId: "", isbusy: 0, inCall: 0 }
             server.emit("addUser", userData);
 
@@ -208,10 +231,12 @@
                 var disabledStaus;
                 if (item.value.isbusy == 0) {
                     userBusyStatus = "success";
-                    disabledStaus = " "
+                    //disabledStaus = " "
+                    disabledStaus="pointer-events: auto;";
                 } else {
                     userBusyStatus = "danger";
-                    disabledStaus = "disabled='disabled'"
+                    disabledStaus = "pointer-events: none;";
+                   // disabledStaus = "disabled='disabled'"
                 }
 
                 //if (item.value.inCall == 0 && item.value.userId==txtuserid.value) {
@@ -219,7 +244,9 @@
                 //}
 
                 if (item.value.userId != txtuserid.value) {
-                    myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "' " + disabledStaus + "  onclick='initiateCallAction(this.id)'></span></li>";
+                    //pointer-events: none;
+                    // myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "' " + disabledStaus + "  onclick='initiateCallAction(this.id)'></span></li>";
+                    myli += "<li id='" + item.value.socketId + "' class='list-group-item'><span class='glyphicon glyphicon-user text-" + userBusyStatus + "'></span>" + item.value.userName + "<span id='" + item.value.socketId + "' style='float:right;cursor:pointer;" + disabledStaus + "' class='glyphicon glyphicon-earphone text-" + userBusyStatus + "'  onclick='initiateCallAction(this.id)'></span></li>";
                 } else {
                     var a = "<span class='glyphicon glyphicon-user text-" + userBusyStatus + "'>" + item.value.userName + "</span>";
                     document.getElementById('currentUser').innerHTML = a;
@@ -234,7 +261,8 @@
         //initiate a call by client
         function initiateCallAction(toClientId) {
             // debugger;
-            server.emit("initiateCallAction", toClientId);
+            var patientDetails = { 'patientName': txtPatientName.value, 'chiefComplaints': txtchiefComplaints.value, 'investigations': txtInvestigations.value, 'provisionalDiagnosis': txtProvisionalDiagnosis.value, 'drugs': txtDrugs.value }
+            server.emit("initiateCallAction", toClientId, patientDetails);
         };
 
 
@@ -250,30 +278,44 @@
             };
             if (responseCode == 2) {
                 // alert("User accepted your request");
-                debugger;
+                //  debugger;
                 chatWindowDisplay.style.display = 'block';
+                disableControls();
+
+                //var allChildNodes = document.getElementById('#divPatientInformation').getElementsByTagName('*');
+                //for (var i = 0; i < allChildNodes.length; i++) {
+                //    allChildNodes[i].disabled = true;
+                //};
+
             };
         };
 
 
         //ask the receiver to accept the call
         server.on("requestingReceiverForCall", requestingReceiverForCall);
-        function requestingReceiverForCall(callerId, callerName, receiverId, roomId) {
+        function requestingReceiverForCall(callerId, callerName, receiverId, roomId, patientDetails) {
             var receiverConfirmation = confirm("User " + callerName + " requsting for a call,Do you want to accept?");
             //debugger;
             server.emit("callRequestResponse", receiverConfirmation, callerId, receiverId, roomId);
             if (receiverConfirmation == true) {
                 chatWindowDisplay.style.display = 'block';
+                txtPatientName.value = patientDetails.patientName;
+                txtchiefComplaints.value = patientDetails.chiefComplaints;
+                txtInvestigations.value = patientDetails.investigations;
+                txtProvisionalDiagnosis.value = patientDetails.provisionalDiagnosis;
+                txtDrugs.value = patientDetails.drugs;
+                enableControls();
+
             }
         };
 
 
 
         //message sending bw clients
-        function sendMessage() {
-            debugger;
-            server.emit("checkConnectionBwClients", "Hi");
-        };
+        //function sendMessage() {
+        //    // debugger;
+        //    server.emit("checkConnectionBwClients", "Hi");
+        //};
 
 
         //onClose Connection
@@ -292,29 +334,87 @@
             clearMessages();
             chatWindowDisplay.style.display = 'none';
         };
-        //server.on("receiveMessage", receiveMessage);
-        //function receiveMessage(msg) {
-        //    alert("msg");
-        //};
 
-        //document.getElementById("form1").addEventListener("submit", fun2);
-        //function fun2(event) {
-        //    var s = document.getElementById("txtusername").value + ": " + document.getElementById("txtmessage").value;
-        //    server.emit("clientMessage", s);
-        //    event.preventDefault();
-        //}
+        //get control request
+        function getControl() {
+            debugger;
+            server.emit("getControlRequest");
+        };
 
-        //server.on("serverMessage", fun3);
-        //function fun3(data) {
-        //    document.getElementById("div2").innerHTML += data + "<br>";
-        //    document.getElementById("div2").scrollTop(0, document.getElementById("div2").scrollHeight);
-        //}
+        server.on("receiveGetControlRequest", receiveGetControlRequest);
+        function receiveGetControlRequest() {
+            debugger;
+            var getControlResult = confirm("Your Partner is requesting for control,Will you give control?");
+
+            server.emit("getControlResponse", getControlResult);
+            if (getControlResult == true) {
+                disableControls();
+            };
+        };
+
+        server.on("receiveGetControlRequestsResponse", receiveGetControlRequestsResponse);
+        function receiveGetControlRequestsResponse(responseFromPartner) {
+            if (responseFromPartner == true) {
+                alert("Partner granted permissions")
+                enableControls();
+            } else if (responseFromPartner == false) {
+                alert("Partner rejected your request")
+            };
+        };
+
+        //release control request
+        function releaseControl() {
+            var releaseControlResponse = confirm("You are about to release control to your partner,Do you want to continue?");
+            if (releaseControlResponse == true) {
+                server.emit("ReleaseControlRequest");
+                disableControls();
+            };
+
+        };
+
+        server.on("releaseControlResponse", releaseControlResponse);
+        function releaseControlResponse() {
+            alert("Your Partner release controls for you.");
+            enableControls();
+        };
+
+        function enableControls() {
+            $("#divPatientInformation").removeClass("disableform");
+            $("#spanGetControl").removeClass("enableform");
+            $("#spanReleaseControl").removeClass("disableform");
 
 
-        //};
+            $("#divPatientInformation").addClass("enableform");
+            $("#spanGetControl").addClass("disableform");
+            $("#spanReleaseControl").addClass("enableform");
+        };
+
+        function disableControls() {
+            $("#divPatientInformation").removeClass("enableform");
+            $("#spanGetControl").removeClass("disableform");
+            $("#spanReleaseControl").removeClass("enableform");
+
+            $("#divPatientInformation").addClass("disableform");
+            $("#spanGetControl").addClass("enableform");
+            $("#spanReleaseControl").addClass("disableform");
+        };
 
 
+        //ondata update
+        function onDataUpdate() {
+            var patientDetails = { 'patientName': txtPatientName.value, 'chiefComplaints': txtchiefComplaints.value, 'investigations': txtInvestigations.value, 'provisionalDiagnosis': txtProvisionalDiagnosis.value, 'drugs': txtDrugs.value };
+            server.emit("onDataUpdate", patientDetails);
+        };
 
+        server.on("onPartnerDataUpdate", onPartnerDataUpdate);
+        function onPartnerDataUpdate(patientDetails) {
+            alert("Partner updated the patient details which will be loaded into your document.")
+            txtPatientName.value = patientDetails.patientName;
+            txtchiefComplaints.value = patientDetails.chiefComplaints;
+            txtInvestigations.value = patientDetails.investigations;
+            txtProvisionalDiagnosis.value = patientDetails.provisionalDiagnosis;
+            txtDrugs.value = patientDetails.drugs;
+        };
     </script>
     <!--<script src="Scripts/chatWindow.js"></script>-->
 
@@ -420,7 +520,7 @@
             // chatWindowDisplay.style.display = 'none';
         };
 
-        //$('#spanGetControl').hover("Get Control")
+
     </script>
 </body>
 </html>

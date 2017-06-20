@@ -79,7 +79,24 @@ function clientConnected(client) {
     //client joining methods
 
 
+    //getPartnerId
+    function getPartnerId() {
+        var getroomId;
+        var otherClient;
 
+        usersList.map(n=> {
+            if (client.id == n.key) {
+                getroomId = n.value.roomId;
+            }
+        });
+
+        usersList.map(n=> {
+            if (getroomId == n.value.roomId && client.id != n.key) {
+                otherClient = n.key;
+            }
+        });
+        return otherClient;
+    }
 
 
     //client disconnect methods
@@ -135,7 +152,7 @@ function clientConnected(client) {
     //2-accepted
     //3-rejected
     client.on("initiateCallAction", initiateCallAction)
-    function initiateCallAction(toClientId) {
+    function initiateCallAction(toClientId, patientDetails) {
         var responseCode, responseData;
         console.log("toClientId-" + toClientId);
         if (client.id == toClientId) {
@@ -163,7 +180,7 @@ function clientConnected(client) {
 
         console.log(usersList);
 
-        client.broadcast.to(toClientId).emit('requestingReceiverForCall', client.id, getCurrentClientObj[0].value.userName, toClientId, roomId);
+        client.broadcast.to(toClientId).emit('requestingReceiverForCall', client.id, getCurrentClientObj[0].value.userName, toClientId, roomId, patientDetails);
         io.sockets.emit("receiveUsersList", usersList);
 
         // client.broadcast.to(toClientId).emit('requestingReceiverForCall', client.id,);
@@ -212,6 +229,51 @@ function clientConnected(client) {
         }
 
     }
+
+
+
+
+    //getcontrol Request
+    client.on("getControlRequest", sendGetControlrequest);
+    function sendGetControlrequest() {
+        var getroomId;
+        var otherClient;
+
+        usersList.map(n=> {
+            if (client.id == n.key) {
+                getroomId = n.value.roomId;
+            }
+        });
+
+        usersList.map(n=> {
+            if (getroomId == n.value.roomId && client.id != n.key) {
+                otherClient = n.key;
+            }
+        });
+        console.log(otherClient);
+        client.broadcast.to(otherClient).emit('receiveGetControlRequest');
+    };
+
+    //response for getcontrol
+    client.on("getControlResponse", getControlResponse);
+    function getControlResponse(getControlResponseFromClient) {
+        var PartnerId = getPartnerId();
+        client.broadcast.to(PartnerId).emit('receiveGetControlRequestsResponse', getControlResponseFromClient);
+    }
+    //RELEASE CONTROL REQUEST
+    client.on("ReleaseControlRequest", sendReceiveControlrequest);
+    function sendReceiveControlrequest() {
+        var PartnerId = getPartnerId();
+        client.broadcast.to(PartnerId).emit('releaseControlResponse');
+    };
+
+
+    //ondataupdate 
+    client.on("onDataUpdate", onDataUpdate);
+    function onDataUpdate(patientDetails) {
+        var PartnerId = getPartnerId();
+        client.broadcast.to(PartnerId).emit('onPartnerDataUpdate',patientDetails);
+    };
 
     //***end****//initiate call//***end****//
 
