@@ -167,6 +167,20 @@
             </div>
         </div>
 
+        <!-- Videos -->
+        <div class="span9">
+            <div class="row-fluid">
+                <div class="span6">
+                    <h4>You</h4>
+                    <video class="video mine cool-background" autoplay="autoplay"></video>
+                </div>
+                <div class="span6">
+                    <h4>Partner</h4>
+                    <video class="video partner cool-background" autoplay="autoplay"></video>
+                </div>
+            </div>
+        </div>
+
 
 
 
@@ -199,6 +213,7 @@
 
     <!--<script src="node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>-->
     <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script src="Scripts/adapter.js"></script>
     <script>
         var chatWindowDisplay = document.getElementById('div_chatWindow');
         chatWindowDisplay.style.display = 'none';
@@ -232,11 +247,11 @@
                 if (item.value.isbusy == 0) {
                     userBusyStatus = "success";
                     //disabledStaus = " "
-                    disabledStaus="pointer-events: auto;";
+                    disabledStaus = "pointer-events: auto;";
                 } else {
                     userBusyStatus = "danger";
                     disabledStaus = "pointer-events: none;";
-                   // disabledStaus = "disabled='disabled'"
+                    // disabledStaus = "disabled='disabled'"
                 }
 
                 //if (item.value.inCall == 0 && item.value.userId==txtuserid.value) {
@@ -506,6 +521,8 @@
             return sendMessage(getMessageText());
         });
 
+     
+
         // });
 
         server.on("receiveMessage", receiveMessage);
@@ -521,6 +538,33 @@
         };
 
 
+    </script>
+    <script>
+
+        $('#spanConnectVideo').click(function (e) {
+            if (webrtcDetectedBrowser == null) {
+                console.log('Your browser doesnt appear to support WebRTC.');
+                // $('.browser-warning').show();
+            }
+            else {
+                getUserMedia(
+               {
+                   // Permissions to request
+                   video: true,
+                   audio: true
+               },
+               function (stream) { // succcess callback gives us a media stream
+                   console.log('playing my local video feed');
+                   var videoElement = document.querySelector('.video.mine');
+                   attachMediaStream(videoElement, stream);
+               },
+               function (error) { // error callback
+                   alertify.alert('<h4>Failed to get hardware access!</h4> Do you have another browser type open and using your cam/mic?<br/><br/>You were not connected to the server, because I didn\'t code to make browsers without media access work well. <br/><br/>Actual Error: ' + JSON.stringify(error));
+
+               }
+           );
+            };
+        });
     </script>
 </body>
 </html>
