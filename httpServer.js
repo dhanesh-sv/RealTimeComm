@@ -314,4 +314,14 @@ function clientConnected(client) {
         client.broadcast.to(getroomId).emit("receiveMessage", message);
     };
     //***end****//message section//***end****//
+
+
+    //videoCallConnection signal transfer section
+    client.on("sendSignal", sendSignal);
+    function sendSignal(signal) {
+        console.log(signal);
+        var PartnerId = getPartnerId();
+        client.broadcast.to(PartnerId).emit('newSignal', signal);
+    };
+    //videoCallConnection signal transfer section
 };

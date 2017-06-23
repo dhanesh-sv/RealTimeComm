@@ -59,7 +59,8 @@ if (navigator.mozGetUserMedia) {
 
     // Attach a media stream to an element.
     attachMediaStream = function (element, stream) {
-        element.src = webkitURL.createObjectURL(stream);
+        //element.src = webkitURL.createObjectURL(stream);
+        element.src = URL.createObjectURL(stream);
     };
 
     reattachMediaStream = function (to, from) {
