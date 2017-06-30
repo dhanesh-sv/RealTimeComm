@@ -1,10 +1,19 @@
 ﻿var express = require("express");
 var http = require("http");
+var https = require('https');
 var socketio = require("socket.io");
+var fs = require('fs');
+
+var privateKey = fs.readFileSync('hostkey.pem');
+var certificate = fs.readFileSync('hostcert.pem');
+var credentials = { key: privateKey, cert: certificate };
 
 var app = express();
 
 var server = http.createServer(engine);
+
+var httpsServer = https.createServer(credentials, app);
+app.listen(8443);
 
 function engine() {
     console.log("request received");
@@ -107,7 +116,11 @@ function clientConnected(client) {
         });
         console.log("client disconnected")
         console.log(usersList);
-        io.sockets.emit("receiveUsersList", usersList);
+        if (client.roomId != '') {
+            onCallEnded();
+        }
+        else { io.sockets.emit("receiveUsersList", usersList); }
+        
     };
 
     //call end method
@@ -324,4 +337,11 @@ function clientConnected(client) {
         client.broadcast.to(PartnerId).emit('newSignal', signal);
     };
     //videoCallConnection signal transfer section
+
+    client.on("startVideoOnOtherSide", startVideoOnOtherSide);
+    function startVideoOnOtherSide() {
+        var PartnerId = getPartnerId();
+        client.broadcast.to(PartnerId).emit('newSignal', "startVideo");
+
+    };
 };

@@ -181,7 +181,22 @@
             </div>
         </div>
 
+        <div class="col-md-4 col-sm-4 col-xs-12" id="smallvideo">
+            <button data-balloon="Whats up!" data-balloon-pos="up" class="btn btn-warning center-block hidden-xs" id="fullbtn">Fullscreen</button>
+            <div id="div-top">
+                <video width="200" height="100" class="video mine cool-background" autoplay="autoplay" >
 
+                </video>
+            </div>
+
+            <div class="embed-responsive embed-responsive-16by9">
+                <video class="embed-responsive-item video partner cool-background" autoplay="autoplay">
+
+                </video>
+            </div>
+
+
+        </div>
 
 
 
@@ -346,8 +361,14 @@
                 server.emit("endCall");
                 clearMessages();
                 chatWindowDisplay.style.display = 'none';
+                _closeConnection(uniquePartnerId);
+                _closeAllConnections();
                 uniquePartnerId = null;
-
+                var otherVideo = document.querySelector('.video.partner');
+                otherVideo.src = '';
+                var mineVideo = document.querySelector('.video.mine');
+                mineVideo.src = '';
+                
             };
         };
 
@@ -356,7 +377,14 @@
             debugger;
             clearMessages();
             chatWindowDisplay.style.display = 'none';
+            _closeConnection(uniquePartnerId);
+            _closeAllConnections();
             uniquePartnerId = null;
+            var otherVideo = document.querySelector('.video.partner');
+            otherVideo.src = '';
+            var mineVideo = document.querySelector('.video.mine');
+            mineVideo.src = '';
+            alert("Call has been ended.");
 
         };
 
@@ -553,9 +581,15 @@
         var _connections = {};
         var _iceServers = [{ url: 'stun:74.125.142.127:19302' }]; // stun.l.google.com - Firefox does not support DNS names.
         var _mediaStream;
-       // _onReadyForStreamCallback = function () { console.log('UNIMPLEMENTED: _onReadyForStreamCallback'); };
-       // _onStreamAddedCallback = function () { console.log('UNIMPLEMENTED: _onStreamAddedCallback'); };
-       // _onStreamRemovedCallback = function () { console.log('UNIMPLEMENTED: _onStreamRemovedCallback'); };
+        // _onReadyForStreamCallback = function () { console.log('UNIMPLEMENTED: _onReadyForStreamCallback'); };
+        // _onStreamAddedCallback = function () { console.log('UNIMPLEMENTED: _onStreamAddedCallback'); };
+        // _onStreamRemovedCallback = function () { console.log('UNIMPLEMENTED: _onStreamRemovedCallback'); };
+
+        var offerOptions = {
+
+            offerToReceiveAudio: 1,
+            offerToReceiveVideo: 1,
+        };
 
         // Send an offer for audio/video
         _initiateOffer = function (partnerClientId, stream) {
@@ -569,12 +603,19 @@
             console.log('stream added on my end');
 
             // Send an offer for a connection
-            connection.createOffer(function (desc) {
-                connection.setLocalDescription(desc, function () {
-                    // _signaler.sendSignal(JSON.stringify({ "sdp": connection.localDescription }), partnerClientId);
-                    server.emit("sendSignal", JSON.stringify({ "sdp": connection.localDescription }));
-                });
-            }, function (error) { console.log('Error creating session description: ' + error); });
+            connection.createOffer(offerOptions).then(function (desc) {
+                connection.setLocalDescription(desc);
+                server.emit("sendSignal", JSON.stringify({ "sdp": connection.localDescription }));
+            }).catch(function (error) {
+                console.log('Error creating session description: ' + error);
+            });
+
+            ////connection.createOffer(function (desc) {
+            ////    connection.setLocalDescription(desc, function () {
+            ////        // _signaler.sendSignal(JSON.stringify({ "sdp": connection.localDescription }), partnerClientId);
+            ////        server.emit("sendSignal", JSON.stringify({ "sdp": connection.localDescription }));
+            ////    });
+            ////}, function (error) { console.log('Error creating session description: ' + error); });
         };
 
 
@@ -617,7 +658,7 @@
                 console.log('WebRTC: adding stream');
                 // A stream was added, so surface it up to our UI via callback
                 // _onStreamAddedCallback(connection, event);
-                onStreamAdded()
+                onStreamAdded(connection, event)
             };
 
             connection.onremovestream = function (event) {
@@ -658,6 +699,7 @@
                    var videoElement = document.querySelector('.video.mine');
                    _mediaStream = stream;
                    attachMediaStream(videoElement, stream);
+                   startVideoOnOtherSide();
                    _initiateOffer(uniquePartnerId, stream);
                },
                function (error) { // error callback
@@ -668,10 +710,36 @@
             };
         });
 
+        function startVideoOnOtherSide() {
+            server.emit("startVideoOnOtherSide");
+        };
+
         server.on("newSignal", newSignal);
         // Hand off a new signal from the signaler to the connection
         function newSignal(signalData) {
             debugger;
+            if (signalData == "startVideo") {
+                getUserMedia(
+                             {
+                                 // Permissions to request
+                                 video: true,
+                                 audio: true
+                             },
+                             function (stream) { // succcess callback gives us a media stream
+                                 console.log('playing my local video feed');
+                                 debugger;
+                                 var videoElement = document.querySelector('.video.mine');
+                                 _mediaStream = stream;
+                                 attachMediaStream(videoElement, stream);
+                             },
+                             function (error) { // error callback
+                                 alertify.alert('<h4>Failed to get hardware access!</h4> Do you have another browser type open and using your cam/mic?<br/><br/>You were not connected to the server, because I didn\'t code to make browsers without media access work well. <br/><br/>Actual Error: ' + JSON.stringify(error));
+
+                             }
+                         );
+                return;
+            }
+
             var signal = JSON.parse(signalData),
                connection = _getConnection(uniquePartnerId);
 
@@ -692,14 +760,24 @@
                 if (connection.remoteDescription.type == "offer") {
                     console.log('WebRTC: received offer, sending response...');
                     //_onReadyForStreamCallback(connection);
+                    debugger;
                     onReadyForStream(connection);
-                    connection.createAnswer(function (desc) {
-                        connection.setLocalDescription(desc, function () {
-                            //_signaler.sendSignal(JSON.stringify({ "sdp": connection.localDescription }), partnerClientId);
-                            server.emit("sendSignal", JSON.stringify({ "sdp": connection.localDescription }));
-                        });
-                    },
-                    function (error) { console.log('Error creating session description: ' + error); });
+
+                    connection.createAnswer(offerOptions).then(function (desc) {
+                        connection.setLocalDescription(desc);
+                        server.emit("sendSignal", JSON.stringify({ "sdp": connection.localDescription }));
+                    }).catch(function (error) {
+                        console.log('Error creating session description: ' + error);
+                    });
+                    ////connection.createAnswer(function (desc) {
+                    ////    connection.setLocalDescription(desc, function () {
+                    ////        //_signaler.sendSignal(JSON.stringify({ "sdp": connection.localDescription }), partnerClientId);
+                    ////        server.emit("sendSignal", JSON.stringify({ "sdp": connection.localDescription }));
+                    ////    });
+                    ////},
+                    ////function (error) { console.log('Error creating session description: ' + error); });
+
+
                 } else if (connection.remoteDescription.type == "answer") {
                     console.log('WebRTC: received answer');
                 }
@@ -741,6 +819,7 @@
 
         // Close all of our connections
         _closeAllConnections = function () {
+            debugger;
             for (var connectionId in _connections) {
                 _closeConnection(connectionId);
             }
@@ -748,12 +827,13 @@
 
         // Close the connection between myself and the given partner
         _closeConnection = function (partnerClientId) {
+            debugger;
             var connection = _connections[partnerClientId];
 
             if (connection) {
                 // Let the user know which streams are leaving
                 // todo: foreach connection.remoteStreams -> onStreamRemoved(stream.id)
-               // _onStreamRemovedCallback(null, null);
+                // _onStreamRemovedCallback(null, null);
                 onStreamRemoved(null, null);
                 // Close the connection
                 connection.close();
