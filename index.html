@@ -43,6 +43,26 @@
             pointer-events: auto;
             opacity: 1.0;
         }
+
+        .video-container {
+            position: relative;
+        }
+
+        .userVideo {
+            height: 100px;
+            width: 135px;
+            float: left;
+            border: 0.25px solid orange;
+            position: absolute;
+        }
+
+        .peerVideo {
+            height: 300px;
+            width: 400px;
+            border: 1px solid blue;
+            position: absolute;
+        }
+
         /*.myUserClass{
             glyphicon glyphicon-user text-success;
         }*/
@@ -168,38 +188,39 @@
         </div>
 
         <!-- Videos -->
-        <div class="span9">
+        <div class="span9" id="div_VideoSection">
             <div class="row-fluid">
-                <div class="span6">
-                    <h4>You</h4>
-                    <video class="video mine cool-background" autoplay="autoplay"></video>
-                </div>
-                <div class="span6">
-                    <h4>Partner</h4>
-                    <video class="video partner cool-background" autoplay="autoplay"></video>
+                <div class="span6 video-container">
+                    <!--<h4>You</h4>-->
+                    <!--</div>
+                    <div class="span6">-->
+                    <!--<h4>Partner</h4>-->
+                    <video class="video partner cool-background peerVideo" autoplay="autoplay"></video>
+                    <video class="video mine cool-background userVideo" autoplay="autoplay" id="myVideo"></video>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 col-sm-4 col-xs-12" id="smallvideo">
+        <!--<div style="float:right"><button id="btnSnapShot">Take Snapshot</button></div>
+        <div style="float:right;border:thin;border-color:bisque;">
+            <canvas id="photoCanvas">
+
+            </canvas>
+        </div>-->
+
+
+        <!--<div class="col-md-4 col-sm-4 col-xs-12" id="smallvideo">
             <button data-balloon="Whats up!" data-balloon-pos="up" class="btn btn-warning center-block hidden-xs" id="fullbtn">Fullscreen</button>
             <div id="div-top">
-                <video width="200" height="100" class="video mine cool-background" autoplay="autoplay" >
-
-                </video>
+                <video width="200" height="100" class="video mine cool-background" autoplay="autoplay"></video>
             </div>
 
             <div class="embed-responsive embed-responsive-16by9">
-                <video class="embed-responsive-item video partner cool-background" autoplay="autoplay">
-
-                </video>
+                <video class="embed-responsive-item video partner cool-background" autoplay="autoplay"></video>
             </div>
 
 
-        </div>
-
-
-
+        </div>-->
         <!--patientdataform-->
         <!--patientdataform-->
         <!--Chat Window Start-->
@@ -231,6 +252,8 @@
     <script src="Scripts/adapter.js"></script>
     <script>
         var chatWindowDisplay = document.getElementById('div_chatWindow');
+        var videoChatDisplay = document.getElementById('div_VideoSection');
+        videoChatDisplay.style.display = 'none';
         chatWindowDisplay.style.display = 'none';
         //var server = io.connect("ws://localhost:7049");
         var server = io.connect("ws://10.10.10.122:7049");
@@ -314,6 +337,7 @@
                 // alert("User accepted your request");
                 //  debugger;
                 chatWindowDisplay.style.display = 'block';
+
                 disableControls();
 
                 //var allChildNodes = document.getElementById('#divPatientInformation').getElementsByTagName('*');
@@ -361,14 +385,16 @@
                 server.emit("endCall");
                 clearMessages();
                 chatWindowDisplay.style.display = 'none';
+                videoChatDisplay.style.display = 'none';
                 _closeConnection(uniquePartnerId);
-                _closeAllConnections();
+                //_closeAllConnections();
                 uniquePartnerId = null;
-                var otherVideo = document.querySelector('.video.partner');
-                otherVideo.src = '';
-                var mineVideo = document.querySelector('.video.mine');
-                mineVideo.src = '';
+                //var otherVideo = document.querySelector('.video.partner');
+                //otherVideo.src = '';
+                //var mineVideo = document.querySelector('.video.mine');
+                //mineVideo.src = '';
                 
+
             };
         };
 
@@ -377,14 +403,17 @@
             debugger;
             clearMessages();
             chatWindowDisplay.style.display = 'none';
-            _closeConnection(uniquePartnerId);
-            _closeAllConnections();
-            uniquePartnerId = null;
-            var otherVideo = document.querySelector('.video.partner');
-            otherVideo.src = '';
-            var mineVideo = document.querySelector('.video.mine');
-            mineVideo.src = '';
+            videoChatDisplay.style.display = 'none';
             alert("Call has been ended.");
+            _closeConnection(uniquePartnerId);
+           // _closeAllConnections();
+            uniquePartnerId = null;
+            //var otherVideo = document.querySelector('.video.partner');
+            //otherVideo.src = '';
+            //var mineVideo = document.querySelector('.video.mine');
+            //mineVideo.src = '';
+           
+            
 
         };
 
@@ -688,6 +717,15 @@
                 // $('.browser-warning').show();
             }
             else {
+
+                if (_mediaStream !== undefined) {
+                    _mediaStream.getAudioTracks().forEach(function (track) {
+                        track.stop();
+                    });
+                    _mediaStream.getVideoTracks().forEach(function (track) {
+                        track.stop();
+                    });
+                };
                 getUserMedia(
                {
                    // Permissions to request
@@ -699,6 +737,7 @@
                    var videoElement = document.querySelector('.video.mine');
                    _mediaStream = stream;
                    attachMediaStream(videoElement, stream);
+                   videoChatDisplay.style.display = 'block';
                    startVideoOnOtherSide();
                    _initiateOffer(uniquePartnerId, stream);
                },
@@ -719,6 +758,16 @@
         function newSignal(signalData) {
             debugger;
             if (signalData == "startVideo") {
+
+                if (_mediaStream !== undefined) {
+                    _mediaStream.getAudioTracks().forEach(function (track) {
+                        track.stop();
+                    });
+                    _mediaStream.getVideoTracks().forEach(function (track) {
+                        track.stop();
+                    });
+                };
+
                 getUserMedia(
                              {
                                  // Permissions to request
@@ -731,6 +780,7 @@
                                  var videoElement = document.querySelector('.video.mine');
                                  _mediaStream = stream;
                                  attachMediaStream(videoElement, stream);
+                                 videoChatDisplay.style.display = 'block';
                              },
                              function (error) { // error callback
                                  alertify.alert('<h4>Failed to get hardware access!</h4> Do you have another browser type open and using your cam/mic?<br/><br/>You were not connected to the server, because I didn\'t code to make browsers without media access work well. <br/><br/>Actual Error: ' + JSON.stringify(error));
@@ -806,10 +856,24 @@
         onStreamRemoved = function (connection, streamId) {
             // todo: proper stream removal.  right now we are only set up for one-on-one which is why this works.
             console.log('removing remote stream from partner window');
+            console.log(_mediaStream);
+            _mediaStream.getAudioTracks().forEach(function (track) {
+                track.stop();
+            });
+            _mediaStream.getVideoTracks().forEach(function (track) {
+                track.stop();
+            });
 
-            // Clear out the partner window
             var otherVideo = document.querySelector('.video.partner');
             otherVideo.src = '';
+            var mineVideo = document.querySelector('.video.mine');
+            mineVideo.src = '';
+
+
+               //streamId.getTracks().forEach(function (track) { track.stop(); })
+            // Clear out the partner window
+            //var otherVideo = document.querySelector('.video.partner');
+            //otherVideo.src = '';
         }
 
 
@@ -861,6 +925,37 @@
         //}
 
 
+    </script>
+
+    <!--PhotoCapture-->
+    <script>
+        var video = document.getElementById('myVideo');
+        var canvas = window.canvas = document.getElementById('photoCanvas');
+        canvas.width = 480;
+        canvas.height = 360;
+        $('#btnSnapShot').click = function () {
+            debugger;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').
+              drawImage(video, 0, 0, canvas.width, canvas.height);
+        };
+
+    </script>
+
+
+
+    <!-- Analytics -->
+    <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-38670464-1']);
+            _gaq.push(['_trackPageview']);
+
+            (function () {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
     </script>
 </body>
 </html>
