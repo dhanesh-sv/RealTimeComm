@@ -19,8 +19,11 @@ function engine() {
     console.log("request received");
 };
 
-var io = socketio(server);
-server.listen(7049, socketServerStartUp);
+//var io = socketio(server);
+//server.listen(7049, socketServerStartUp);
+
+var io = socketio(httpsServer);
+httpsServer.listen(7049, socketServerStartUp);
 
 function socketServerStartUp() {
     console.log("socket server started");
@@ -30,6 +33,10 @@ app.listen(6049, appServerStartUp);
 function appServerStartUp() {
     console.log("app server started");
 };
+
+
+
+
 app.use(express.static(__dirname));
 
 app.get("/", render1);
